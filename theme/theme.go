@@ -4,8 +4,8 @@
 package theme
 
 import (
-	"context"
 	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -44,33 +44,29 @@ func (t *Theme) ApplyPalette() error {
 	return cmd.Run()
 }
 
-// PlaySoundLoop начинает фоновое зацикленное воспроизведение аудиофайла.
+// PlaySound начинает фоновое зацикленное воспроизведение аудиофайла.
 // Путь к файлу определяется полем Sound.
 //
-// Возвращает функцию stop, вызов которой завершит воспроизведение,
-// и ошибку, если воспроизведение не удалось начать.
-// Функция stop безопасна для многократного вызова и может быть вызвана из любого goroutine.
-func (t *Theme) PlaySound() (stopFunc func(), err error) {
+// Возвращает процесс mpv, что позволяет вызывающему коду управлять им
+// (например, получить PID, отправить дополнительные сигналы или принудительно завершить).
+// Если поле Sound пустое, возвращается (nil, nil).
+// В случае ошибки запуска возвращается (nil, error).
+//
+// Внимание: вызывающий код несёт ответственность за завершение процесса
+// с помощью process.Kill() или process.Wait() по окончании работы.
+func (t *Theme) PlaySound() (*os.Process, error) {
 
 	if t.Sound == "" {
 		return nil, nil
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	cmd := exec.CommandContext(ctx, "mpv", "--loop", "yes", t.Sound)
+	cmd := exec.Command("mpv", "--loop", "yes", t.Sound)
 
 	fmt.Printf("Выполнение: %s\n", cmd.String())
 
 	if err := cmd.Start(); err != nil {
-		cancel() // Важно: освободить контекст в случае ошибки
 		return nil, fmt.Errorf("failed to start sound player: %w", err)
 	}
 
-	// Возвращаем функцию, которая отменяет контекст и ожидает завершения процесса.
-	stop := func() {
-		cancel()
-		_ = cmd.Wait() // Игнорируем ошибку, так как мы просто останавливаем воспроизведение
-	}
-
-	return stop, nil
+	return cmd.Process, nil
 }
