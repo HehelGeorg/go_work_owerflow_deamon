@@ -1,0 +1,7 @@
+# Конфигурация тем рабочих столов для Hyprland
+
+[workspace.4]
+# Тема для разработки
+walpapper = ""
+pallete_script = ""
+sound = "" 
