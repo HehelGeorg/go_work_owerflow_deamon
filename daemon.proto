@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+// Опция для генерации кода Go
+option go_package = "./pb"; 
+
+
+// Sound 
+message SoundRequest {
+  string settings = 1;
+}
+
+
+message SoundResponse {
+  string message = 1;
+}
+
+// Walpapper
+message WalpapperRequest {
+  string settings = 1;
+}
+
+
+message WalpapperResponse {
+  string message = 1;
+}
+
+// Pallete
+message PalleteRequest {
+  string settings = 1;
+}
+
+
+message PalleteResponse {
+  string message = 1;
+}
+
+// Requests to actors
+service ManageResources {
+    // sound
+  rpc SoundManage (HelloRequest) returns (HelloResponse);
+    // walpapper
+  rpc WalpapperManage (WalpapperRequest) returns (WalpapperResponse);
+    // pallete
+  rpc PalleteManage (PalleteRequest) returns (PalleteResponse);
+}
